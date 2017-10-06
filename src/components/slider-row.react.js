@@ -10,6 +10,7 @@ let _direction = 0;
 let _interval = null;
 let _navigationSpeed = 1;
 let _navigationInProcess = false;
+let _isOnFocus = true;
 
 export default class SliderRow extends React.Component {
     constructor(props){
@@ -29,6 +30,14 @@ export default class SliderRow extends React.Component {
         };
 
         this.setNewXCoordinates = this.setNewXCoordinates.bind(this);
+
+        window.addEventListener('focus', function() {
+            _isOnFocus = true;
+        }, false);
+
+        window.addEventListener('blur', function() {
+            _isOnFocus = false;
+        }, false);
     }
 
     componentDidMount() {
@@ -47,8 +56,10 @@ export default class SliderRow extends React.Component {
     
     runInterval() {
         _interval = setInterval(() => {
-            _destPage = _currentPage + 1;
-            this.setNewXCoordinates();
+            if (_isOnFocus) {
+                _destPage = _currentPage + 1;
+                this.setNewXCoordinates();
+            }
         }, this.props.timeout);
     }
 
@@ -89,7 +100,7 @@ export default class SliderRow extends React.Component {
             date = this.props.images.length - 1;
         }
 
-        return date
+        return date;
     }
 
     setNewXCoordinates(callback) {

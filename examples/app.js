@@ -22426,7 +22426,7 @@
 /* 198 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -22456,6 +22456,7 @@
 	var _interval = null;
 	var _navigationSpeed = 1;
 	var _navigationInProcess = false;
+	var _isOnFocus = true;
 
 	var SliderRow = function (_React$Component) {
 	    _inherits(SliderRow, _React$Component);
@@ -22480,33 +22481,43 @@
 	        };
 
 	        _this.setNewXCoordinates = _this.setNewXCoordinates.bind(_this);
+
+	        window.addEventListener('focus', function () {
+	            _isOnFocus = true;
+	        }, false);
+
+	        window.addEventListener('blur', function () {
+	            _isOnFocus = false;
+	        }, false);
 	        return _this;
 	    }
 
 	    _createClass(SliderRow, [{
-	        key: "componentDidMount",
+	        key: 'componentDidMount',
 	        value: function componentDidMount() {
 	            this.props.onRef(this);
 
 	            this.runInterval();
 	        }
 	    }, {
-	        key: "componentWillunmount",
+	        key: 'componentWillunmount',
 	        value: function componentWillunmount() {
 	            this.props.onRef(null);
 	        }
 	    }, {
-	        key: "runInterval",
+	        key: 'runInterval',
 	        value: function runInterval() {
 	            var _this2 = this;
 
 	            _interval = setInterval(function () {
-	                _destPage = _currentPage + 1;
-	                _this2.setNewXCoordinates();
+	                if (_isOnFocus) {
+	                    _destPage = _currentPage + 1;
+	                    _this2.setNewXCoordinates();
+	                }
 	            }, this.props.timeout);
 	        }
 	    }, {
-	        key: "navigate",
+	        key: 'navigate',
 	        value: function navigate(page) {
 	            var isFastNavigation = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
@@ -22537,7 +22548,7 @@
 	            }).apply(this);
 	        }
 	    }, {
-	        key: "checkDate",
+	        key: 'checkDate',
 	        value: function checkDate(date) {
 	            if (date > this.props.images.length - 1) {
 	                date = 0;
@@ -22550,7 +22561,7 @@
 	            return date;
 	        }
 	    }, {
-	        key: "setNewXCoordinates",
+	        key: 'setNewXCoordinates',
 	        value: function setNewXCoordinates(callback) {
 	            _direction = _destPage > _currentPage ? 1 : -1;
 	            var nextPage = _currentPage + _direction;
@@ -22582,31 +22593,31 @@
 	            });
 	        }
 	    }, {
-	        key: "render",
+	        key: 'render',
 	        value: function render() {
 	            var _this4 = this;
 
 	            var images = this.props.images.map(function (image, idx) {
 	                var style = {
-	                    transform: "translateX(" + _this4.state.coordinatesX[idx] + "px)",
-	                    transition: _this4.state.coordinatesX[idx] !== _direction * STEP_SIZE ? _navigationSpeed + "s ease-in-out" : "none"
+	                    transform: 'translateX(' + _this4.state.coordinatesX[idx] + 'px)',
+	                    transition: _this4.state.coordinatesX[idx] !== _direction * STEP_SIZE ? _navigationSpeed + 's ease-in-out' : 'none'
 	                };
 
 	                return _react2.default.createElement(
-	                    "div",
-	                    { className: "slider-row__item", key: idx, style: style },
-	                    _react2.default.createElement("img", { src: image })
+	                    'div',
+	                    { className: 'slider-row__item', key: idx, style: style },
+	                    _react2.default.createElement('img', { src: image })
 	                );
 	            });
 
 	            return _react2.default.createElement(
-	                "div",
-	                { className: "slider-row" },
+	                'div',
+	                { className: 'slider-row' },
 	                images
 	            );
 	        }
 	    }, {
-	        key: "currentPage",
+	        key: 'currentPage',
 	        get: function get() {
 	            return _currentPage;
 	        }
