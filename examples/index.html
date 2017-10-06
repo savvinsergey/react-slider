@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image slider</title>
+    <style>
+        .container {
+            padding-top: 50px;
+        }
+        .images-slider {
+            overflow: hidden;
+            width: 740px;
+            height: 400px;
+        }
+        .slider-row {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+        .slider-row__item {
+            width: 740px;
+            height: 400px;
+            flex: 1 0 100%;
+            position: absolute
+        }
+
+        .slider-row__item img {
+            width: inherit;
+            height: inherit;
+        }
+        .controls-slider {
+            width: inherit;
+            height: inherit;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            z-index: 10;
+            position: absolute;
+        }
+        .controls-slider .navigation-container {
+            flex-grow: 5;
+            opacity: .5;
+            text-align: center;
+            align-self: flex-end;
+        }
+
+        .controls-slider .navigation-container a {
+            margin: 0 2px;
+            cursor: pointer;
+        }
+
+        .controls-slider a.prevStep,
+        .controls-slider a.nextStep {
+            width: 15%;
+            color: #fff;
+            text-align: center;
+            align-self: center;
+            opacity: .5;
+            cursor: pointer;
+        }
+        .controls-slider .dot{
+
+        }
+        .controls-slider .dot:before {
+            color: #fff;
+            content: "\25cf";
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+<body>
+    <div id="container" class="container"></div>
+    <script src="app.js"></script>
+</body>
+</html>
