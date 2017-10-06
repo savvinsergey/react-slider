@@ -1,7 +1,7 @@
 import React from 'react';
 
 const STEP_SIZE = 740;
-const FAST_NAVIGATION_SPEED = 1;//0.3;
+const FAST_NAVIGATION_SPEED = 0.3;
 const DEFAULT_NAVIGATION_SPEED = 1;
 
 let _currentPage = 0;
