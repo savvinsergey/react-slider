@@ -1,0 +1,15 @@
+#container {
+    padding-top: 50px;
+}
+@media (max-width: 740px) {
+    #container {
+        width: 100%;
+    }
+}
+
+@media (min-width: 740px) {
+    #container {
+        display: flex;
+        justify-content: center;
+    }
+}
