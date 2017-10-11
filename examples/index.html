@@ -2,76 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <title>Image slider</title>
     <style>
-        .container {
+        #container {
             padding-top: 50px;
         }
-        .images-slider {
-            overflow: hidden;
-            width: 740px;
-            height: 400px;
-        }
-        .slider-row {
-            display: flex;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            position: relative;
-        }
-        .slider-row__item {
-            width: 740px;
-            height: 400px;
-            flex: 1 0 100%;
-            position: absolute
+        @media (max-width: 740px) {
+            #container {
+                width: 100%;
+            }
         }
 
-        .slider-row__item img {
-            width: inherit;
-            height: inherit;
-        }
-        .controls-slider {
-            width: inherit;
-            height: inherit;
-            display: flex;
-            flex-direction: row;
-            flex-wrap: nowrap;
-            z-index: 10;
-            position: absolute;
-        }
-        .controls-slider .navigation-container {
-            flex-grow: 5;
-            opacity: .5;
-            text-align: center;
-            align-self: flex-end;
-        }
-
-        .controls-slider .navigation-container a {
-            margin: 0 2px;
-            cursor: pointer;
-        }
-
-        .controls-slider a.prevStep,
-        .controls-slider a.nextStep {
-            width: 15%;
-            color: #fff;
-            text-align: center;
-            align-self: center;
-            opacity: .5;
-            cursor: pointer;
-        }
-        .controls-slider .dot{
-
-        }
-        .controls-slider .dot:before {
-            color: #fff;
-            content: "\25cf";
-            font-size: 1.5em;
+        @media (min-width: 740px) {
+            #container {
+                display: flex;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="container" class="container"></div>
+    <div id="container"></div>
     <script src="app.js"></script>
 </body>
 </html>

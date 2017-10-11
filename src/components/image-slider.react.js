@@ -1,43 +1,68 @@
 import React from 'react';
+import styled from 'styled-components';
 
 import SliderRow from './slider-row.react';
 import SliderControls from './slider-controls.react';
 
+// -------------- CSS ----------------
+
+const ImageSlideContainer = styled.div`
+    overflow: hidden;
+    width: 740px;
+    height: 400px;
+`;
+
+// -------------- COMPONENT-----------------
+
+const FAST_NAVIGATION_SPEED = 0.3;
+
 export default class ImageSlider extends React.Component {
-    constructor(props){
+    constructor(props) {
         super(props);
-
-        this.goToSlide = this.goToSlide.bind(this);
-        this.prevSlide = this.prevSlide.bind(this);
-        this.nextSlide = this.nextSlide.bind(this);
+        this.state = {
+            currentSlide: null,
+            destinationSlide: null
+        };
     }
 
-    goToSlide(page) {
-        return this.child.navigate(page, true);
+    handleDestinationSlideChange(destinationSlide) {
+        this.setState({
+            currentSlide: this.state.currentSlide,
+            destinationSlide
+        });
     }
 
-    prevSlide() {
-        return this.child.navigate(this.child.currentPage - 1, true);
-    }
+    handleCurrentSlideChange(currentSlide) {
+        const prevSlide = this.state.currentSlide;
+        let destinationSlide = this.state.destinationSlide;
 
-    nextSlide() {
-        return this.child.navigate(this.child.currentPage + 1, true);
+        destinationSlide = prevSlide === destinationSlide || destinationSlide === null
+            ? currentSlide
+            : destinationSlide;
+
+        setTimeout(() => {
+            this.setState({currentSlide, destinationSlide});
+        }, FAST_NAVIGATION_SPEED * 1000);
     }
 
     render(){
         return (
-            <div className="images-slider">
+            <ImageSlideContainer>
                 <SliderRow
                     images={this.props.images}
                     timeout={this.props.timeout}
-                    onRef={ref => (this.child = ref)}/>
+                    destinationSlide={this.state.destinationSlide}
+                    onCurrentSlideChange={
+                        currentSlide => this.handleCurrentSlideChange(currentSlide)
+                    } />
                 <SliderControls
                     imagesAmount={this.props.images.length}
-                    goToSlide={this.goToSlide}
-                    prevSlide={this.prevSlide}
-                    nextSlide={this.nextSlide} />
-            </div>
-        )
+                    currentSlide={this.state.currentSlide}
+                    onDestinationSlideChange={
+                        destinationSlide => this.handleDestinationSlideChange(destinationSlide)
+                    } />
+            </ImageSlideContainer>
+        );
     }
 
 }

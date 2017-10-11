@@ -1,160 +1,163 @@
 import React from 'react';
+import styled from 'styled-components';
 
+// -------------- CSS -----------------
+
+const SliderRowContainer = styled.div`
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+`;
+
+const SliderRow_Item = styled.div`
+    width: 740px;
+    height: 400px;
+    flex: 1 0 100%;
+    position: absolute;
+    & > img {
+         width: inherit;
+         height: inherit;
+    }
+`;
+
+// -------------- COMPONENT-----------------
+
+// FIX: these consts should keep in config file
 const STEP_SIZE = 740;
 const FAST_NAVIGATION_SPEED = 0.3;
 const DEFAULT_NAVIGATION_SPEED = 1;
 
-let _currentPage = 0;
-let _destPage = 0;
-let _direction = 0;
-let _interval = null;
-let _navigationSpeed = 1;
-let _navigationInProcess = false;
-let _isOnFocus = true;
-
 export default class SliderRow extends React.Component {
+    // I am not sure these variables should keep in component state
+    interval = null;
+    isOnFocus = true;
+
     constructor(props){
         super(props);
+
+        const imagesAmount = this.props.images.length - 1;
         this.state = {
-            coordinatesX: (props.images.length && props.images.map((image, idx) => {
-                if(idx === 0) {
-                   return 0;
-                }
-
-                if(idx === props.images.length - 1) {
-                    return -STEP_SIZE;
-                }
-
-                return STEP_SIZE;
-            })) || []
+            currentSlide: imagesAmount,
+            destinationSlide: imagesAmount + 1,
+            navigationSpeed: DEFAULT_NAVIGATION_SPEED
         };
 
-        this.setNewXCoordinates = this.setNewXCoordinates.bind(this);
-
-        window.addEventListener('focus', function() {
-            _isOnFocus = true;
-        }, false);
-
-        window.addEventListener('blur', function() {
-            _isOnFocus = false;
-        }, false);
+        window.addEventListener('focus', this.setOnFocus.bind(this, true), false);
+        window.addEventListener('blur', this.setOnFocus.bind(this, false), false);
     }
 
     componentDidMount() {
-        this.props.onRef(this);
-
+        this.props.onCurrentSlideChange(this.state.currentSlide);
         this.runInterval();
     }
 
-    componentWillunmount() {
-        this.props.onRef(null);
+    componentWillUnmount() {
+        clearInterval(this.interval);
+
+        window.removeEventListener('focus', this.setOnFocus, false);
+        window.removeEventListener('blur', this.setOnFocus, false);
     }
 
-    get currentPage() {
-        return _currentPage;
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.destinationSlide !== nextState.destinationSlide ||
+            nextState.destinationSlide !== nextState.currentSlide;
     }
-    
+
+    componentWillReceiveProps(nextProps) {
+        if (this.state.destinationSlide !== nextProps.destinationSlide) {
+            this.state.navigationSpeed = FAST_NAVIGATION_SPEED;
+            if (this.interval !== null) {
+                clearInterval(this.interval);
+                this.interval = null;
+            }
+
+            this.state.destinationSlide = nextProps.destinationSlide;
+            this.setState(this.state);
+        }
+    }
+
+    componentDidUpdate() {
+        if (this.state.destinationSlide === this.state.currentSlide) {
+            this.state.navigationSpeed = DEFAULT_NAVIGATION_SPEED;
+            if (!this.interval) {
+                this.runInterval();
+            }
+        }
+
+        this.props.onCurrentSlideChange(this.state.currentSlide);
+    }
+
     runInterval() {
-        _interval = setInterval(() => {
-            if (_isOnFocus) {
-                _destPage = _currentPage + 1;
-                this.setNewXCoordinates();
+        this.interval = setInterval(() => {
+            if (this.isOnFocus) {
+                this.state.destinationSlide = this.state.currentSlide + 1;
+                this.setState(this.state);
             }
         }, this.props.timeout);
     }
 
-    navigate(page, isFastNavigation = false) {
-        if(page === _currentPage || _navigationInProcess) {
-            return;
-        }
-
-        _navigationInProcess = true;
-        clearInterval(_interval);
-
-        _destPage = page;
-        _navigationSpeed = isFastNavigation
-            ? FAST_NAVIGATION_SPEED
-            : DEFAULT_NAVIGATION_SPEED;
-
-        (function loop(){
-            this.setNewXCoordinates(() => {
-                if(_currentPage !== _destPage) {
-                    setTimeout(() => {
-                        loop.apply(this);
-                    }, _navigationSpeed * 1000);
-                } else {
-                    _navigationInProcess = false;
-                    _navigationSpeed = DEFAULT_NAVIGATION_SPEED;
-                    this.runInterval();
-                }
-            });
-        }.apply(this));
+    setOnFocus(value = false) {
+        this.isOnFocus = value;
     }
 
-    checkDate(date) {
-        if (date > this.props.images.length - 1) {
-            date = 0;
+    checkSlide(slide) {
+        const images = this.props.images;
+        if (slide > images.length - 1) {
+            return 0;
         }
 
-        if (date < 0) {
-            date = this.props.images.length - 1;
+        if (slide < 0) {
+            return images.length - 1;
         }
 
-        return date;
-    }
-
-    setNewXCoordinates(callback) {
-        _direction = (_destPage > _currentPage ? 1 : -1);
-        let nextPage = _currentPage + _direction;
-        nextPage = this.checkDate(nextPage);
-
-        for (let i = 0; i < nextPage; i++) {
-            this.state.coordinatesX[i] = -STEP_SIZE;
-        }
-        this.state.coordinatesX[nextPage] = 0;
-        for (let i = nextPage + 1; i < this.props.images.length; i++) {
-            this.state.coordinatesX[i] = STEP_SIZE;
-        }
-
-        _currentPage = nextPage;
-
-        if(nextPage === 0) {
-            this.state.coordinatesX[this.props.images.length - 1] = -STEP_SIZE;
-        }
-        if(nextPage === this.props.images.length - 1) {
-            this.state.coordinatesX[0] = STEP_SIZE;
-        }
-
-        _destPage = this.checkDate(_destPage);
-
-        this.setState(this.state, () => {
-            if (callback) {
-                callback();
-            }
-        });
+        return slide;
     }
 
     render(){
-        let images = this.props.images.map((image, idx) => {
+        const direction = this.state.destinationSlide > this.state.currentSlide ? 1 : -1,
+              images = this.props.images;
+
+        let nextSlide = this.state.currentSlide + direction;
+        nextSlide = this.checkSlide(nextSlide);
+
+        let coordinatesX = [];
+        for (let i = 0; i < nextSlide; i++) {
+            coordinatesX[i] = -STEP_SIZE;
+        }
+        coordinatesX[nextSlide] = 0;
+        for (let i = nextSlide + 1; i < images.length; i++) {
+            coordinatesX[i] = STEP_SIZE;
+        }
+
+        if(nextSlide === 0) {
+            coordinatesX[images.length - 1] = -STEP_SIZE;
+        }
+        if(nextSlide === images.length - 1) {
+            coordinatesX[0] = STEP_SIZE;
+        }
+
+        this.state.currentSlide = nextSlide;
+        this.state.destinationSlide = this.checkSlide(this.state.destinationSlide);
+
+        let imagesEl = this.props.images.map((image, idx) => {
             const style = {
-                transform: `translateX(${this.state.coordinatesX[idx]}px)`,
-                transition: this.state.coordinatesX[idx] !== _direction * STEP_SIZE
-                    ? `${_navigationSpeed}s ease-in-out`
+                transform: `translateX(${coordinatesX[idx]}px)`,
+                transition: coordinatesX[idx] !== direction * STEP_SIZE
+                    ? `${this.state.navigationSpeed}s ease-in-out`
                     : `none`
             };
 
-            return <div className="slider-row__item" key={idx} style={style}>
+            return <SliderRow_Item key={idx} style={style}>
                 <img src={image}/>
-            </div>;
+            </SliderRow_Item>;
         });
 
         return (
-            <div className="slider-row">
-                {images}
-            </div>
-        )
+            <SliderRowContainer>
+                {imagesEl}
+            </SliderRowContainer>
+        );
     }
-
-
-
 }
